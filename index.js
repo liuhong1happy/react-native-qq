@@ -31,14 +31,9 @@ function waitForResponse(type) {
             savedCallback('User canceled.');
         }
         savedCallback = result => {
-            if (result.type !== type) {
-                return;
-            }
             savedCallback = undefined;
             if (result.errCode !== 0) {
-                const err = new Error(result.errMsg);
-                err.errCode = result.errCode;
-                reject(err);
+                reject(result);
             } else {
                 const {type, ...r} = result
                 resolve(r);
@@ -56,6 +51,11 @@ NativeAppEventEmitter.addListener('QQ_Resp', resp => {
 export function login(scopes) {
     return QQAPI.login(scopes)
         .then(() => waitForResponse("QQAuthorizeResponse"));
+}
+
+export function getUserInfo() {
+    return QQAPI.getUserInfo()
+        .then(() => waitForResponse("QQUserInfoResponse"));
 }
 
 export function shareToQQ(data={}) {
